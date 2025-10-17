@@ -1,6 +1,6 @@
 # Automatic Visual Inspection System for PCB Defect Detection using YOLOv11s
 
-This project implements an **Automatic Visual Inspection (AVI) System** for detecting surface-level defects on **Printed Circuit Boards (PCBs)** using the **YOLOv11s** object detection model. The system was developed as part of a Final Year Project (FYP) under the Bachelor of Engineering (Hons.) in Electronic Engineering (Technology) at UiTM Pulau Pinang.
+This project implements an **Automatic Visual Inspection (AVI) System** for detecting surface-level defects on **Printed Circuit Boards (PCBs)** using the **YOLOv11s** object detection model. The system was developed as part of a Final Year Project (FYP) under UiTM Pulau Pinang.
 
 ---
 
