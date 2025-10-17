@@ -1,0 +1,86 @@
+Esp32 code
+
+#include <HardwareSerial.h>
+
+// Pin Definitions (Active-LOW)
+#define MOTOR_PIN   25  // Motor (LOW = ON, HIGH = OFF)
+#define YELLOW_PIN  27  // Startup Indicator (LOW = ON, HIGH = OFF)
+#define RED_PIN     13  // Defect Indicator (LOW = ON, HIGH = OFF)
+#define GREEN_PIN   26  // Normal Indicator (LOW = ON, HIGH = OFF)
+
+// Serial Communication (Using UART2 on ESP32)
+HardwareSerial SerialPort(2);  // UART2 (RX=16, TX=17)
+
+void setup() {
+    Serial.begin(115200);
+    SerialPort.begin(9600, SERIAL_8N1, 16, 17);  // RX=16, TX=17
+
+    // Initialize Pins as OUTPUT
+    pinMode(MOTOR_PIN, OUTPUT);
+    pinMode(YELLOW_PIN, OUTPUT);
+    pinMode(RED_PIN, OUTPUT);
+    pinMode(GREEN_PIN, OUTPUT);
+
+    // System Startup Sequence
+    startupSequence();
+}
+
+void loop() {
+    // ESP32 Runs Normally Unless Python Sends Data
+    if (SerialPort.available() > 0) {  
+        char command = SerialPort.read();  // Read one character
+        processCommand(command);  // Handle defect detection logic
+    }
+    // Removed delay to improve responsiveness
+}
+
+// Startup Sequence: Motor & Yellow ON for 10 sec
+void startupSequence() {
+    digitalWrite(MOTOR_PIN, LOW);   // Motor ON
+    digitalWrite(YELLOW_PIN, LOW);  // Yellow ON
+    digitalWrite(RED_PIN, HIGH);    // Red OFF
+    digitalWrite(GREEN_PIN, HIGH);  // Green OFF
+
+    Serial.println("🚀 Startup: Motor & Yellow ON for 10 sec...");
+    delay(10000);
+
+    // Pause: All OFF for 5 sec
+    setAllOff();
+    Serial.println("Pause: All OFF for 5 sec...");
+    delay(5000);
+
+    // Default Running State: Motor & Green ON continuously
+    digitalWrite(MOTOR_PIN, LOW);   // Motor ON
+    digitalWrite(GREEN_PIN, LOW);   // Green ON
+    Serial.println("System Running: Motor & Green ON continuously...");
+}
+
+// Handle Defect Detection
+void processCommand(char command) {
+    switch (command) {
+        case 'D':  // Defect detected
+            digitalWrite(GREEN_PIN, HIGH);  // Green OFF
+            digitalWrite(YELLOW_PIN, HIGH); // Yellow OFF
+            digitalWrite(RED_PIN, LOW);     // Red ON
+            Serial.println("🚨 Defect detected! Red light ON.");
+            break;
+        
+        case 'N':  // No defect
+            digitalWrite(RED_PIN, HIGH);   // Red OFF
+            digitalWrite(GREEN_PIN, LOW);  // Green ON
+            digitalWrite(YELLOW_PIN, HIGH); // Yellow OFF
+            Serial.println("✅ No defects. Green light ON.");
+            break;
+
+        default:
+            Serial.println("⚠ Unknown command received.");
+    }
+}
+
+// Turn OFF All Outputs
+void setAllOff() {
+    digitalWrite(MOTOR_PIN, HIGH);
+    digitalWrite(YELLOW_PIN, HIGH);
+    digitalWrite(RED_PIN, HIGH);
+    digitalWrite(GREEN_PIN, HIGH);
+}
